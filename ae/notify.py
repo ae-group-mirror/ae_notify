@@ -1,29 +1,47 @@
-""" ae_notify module main module to send notifications via email, telegram or whatsapp. """
+"""
+send notifications via email, telegram or whatsapp
+==================================================
+
+this pure python module depends mainly on the Standard Python Libraries :mod:`email` and :mod:`smtplib` and the external
+:mod:`requests` module.
+
+an instance of the :class:`Notifications` has to be created for each notification sender in your app, providing the
+sender's credentials for each used notification channel (service).
+
+the notification channels and the receiver(s) can be specified individually for each notification message to send.
+
+"""
 import re
 import requests                                     # type: ignore
 
 from email.mime.text import MIMEText
 from smtplib import SMTP, SMTP_SSL
-
-
-__version__ = '0.0.1'
-
 from typing import Tuple
 
-# default service names and ports of the SMTP protocol
-DEF_ENC_PORT = 25
-DEF_ENC_SERVICE_NAME = 'smtp'
-SSL_ENC_PORT = 465
-SSL_ENC_SERVICE_NAME = 'smtps'
-TLS_ENC_PORT = 587
-TLS_ENC_SERVICE_NAME = 'smtpTLS'
 
-# maximum message length restrictions
-TELEGRAM_MESSAGE_MAX_LEN = 4096
-WHATSAPP_MESSAGE_MAX_LEN = 65536
+__version__ = '0.3.1'
+
+
+# default service names and ports of the SMTP protocol
+DEF_ENC_PORT = 25                       #: standard SMTP port
+DEF_ENC_SERVICE_NAME = 'smtp'           #: standard SMTP service name
+SSL_ENC_PORT = 465                      #: port to use SMTP via SSL
+SSL_ENC_SERVICE_NAME = 'smtps'          #: service name in :paramref:`Notifications.smtp_server_uri` of SMTP via SSL
+TLS_ENC_PORT = 587                      #: port to use SMTP via TLS
+TLS_ENC_SERVICE_NAME = 'smtpTLS'        #: service name in :paramref:`Notifications.smtp_server_uri` of SMTP via TLS
+
+#: message length maximum restrictions
+TELEGRAM_MESSAGE_MAX_LEN = 4096         #: maximum length of Telegram notification message body
+WHATSAPP_MESSAGE_MAX_LEN = 65536        #: maximum length of Whatsapp notification message body
 
 
 def _body_mime_type_conversion(msg_body: str, mime_type: str) -> Tuple[str, str]:
+    """ convert content of notification message body.
+
+    :param msg_body:            message body string.
+    :param mime_type:           mime type to convert to, if it has the "to_" prefix in front of the resulting mime type.
+    :return:                    tuple of converted message body and resulting mime type (removing the "to_" prefix).
+    """
     if mime_type == 'to_html':
         msg_body = msg_body.replace('\n', '<br>')
         mime_type = 'html'
@@ -39,9 +57,9 @@ class Notifications:
                  smtp_server_uri: str = "", mail_from: str = "", local_mail_host: str = '',
                  telegram_token: str = "",
                  whatsapp_token: str = "", whatsapp_sender: str = ""):
-        """ initialize one or more different services to send multiple notifications to individual receivers.
+        """ initialize one or more different services for a sender of multiple notifications to individual receivers.
 
-        :param smtp_server_uri: host and optional port and user credentials of email SMTP server to user in the format
+        :param smtp_server_uri: host and optional port and user credentials of email SMTP server to use, in the format
                                 [service://][user[:password]@]mail_server_host[:mail_server_port]. default SMTP ports:
                                 25/DEF_ENC_PORT, port 587/TSL_ENC_PORT for E-SMTP/TLS or 465/SSL_ENC_PORT for smtps/SSL.
         :param mail_from:       email sender address.
@@ -58,6 +76,7 @@ class Notifications:
             self._mail_service, smtp_server_uri = smtp_server_uri.split("://")
         else:
             self._mail_service = DEF_ENC_SERVICE_NAME
+
         if '@' in smtp_server_uri:
             pos = smtp_server_uri.rindex("@")
             user_info = smtp_server_uri[:pos]
@@ -73,6 +92,7 @@ class Notifications:
             mail_host = smtp_server_uri
             self._user_name = ""
             self._user_password = ""
+
         if ':' in mail_host:
             pos = mail_host.rindex(":")
             self._mail_host = mail_host[:pos]
@@ -96,7 +116,7 @@ class Notifications:
         self._whatsapp_token = whatsapp_token
         self._whatsapp_sender_id = whatsapp_sender
 
-    def send_notification(self, msg_body: str, receiver: str, subject: str = "", mime_type: str = "to_html"):
+    def send_notification(self, msg_body: str, receiver: str, subject: str = "", mime_type: str = "to_html") -> str:
         """ send a notification message with optional subject to receiver via the specified service.
 
         :param msg_body:        message body. line breaks are converted (br-tag <-> \n) in accordance with mime_type.
