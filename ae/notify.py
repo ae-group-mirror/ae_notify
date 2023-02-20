@@ -19,7 +19,7 @@ from smtplib import SMTP, SMTP_SSL
 from typing import Tuple
 
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 
 # default service names and ports of the SMTP protocol
@@ -39,8 +39,8 @@ def _body_mime_type_conversion(msg_body: str, mime_type: str) -> Tuple[str, str]
     """ convert content of notification message body.
 
     :param msg_body:            message body string.
-    :param mime_type:           mime type to convert to, if it has the "to_" prefix in front of the resulting mime type.
-    :return:                    tuple of converted message body and resulting mime type (removing the "to_" prefix).
+    :param mime_type:           mime type to convert to, if it has the "to" prefix in front of the resulting mime type.
+    :return:                    tuple of converted message body and resulting mime type (removing the "to" prefix).
     """
     if mime_type == 'to_html':
         msg_body = msg_body.replace('\n', '<br>')
@@ -119,17 +119,18 @@ class Notifications:
     def send_notification(self, msg_body: str, receiver: str, subject: str = "", mime_type: str = "to_html") -> str:
         """ send a notification message with optional subject to receiver via the specified service.
 
-        :param msg_body:        message body. line breaks are converted (br-tag <-> \n) in accordance with mime_type.
+        :param msg_body:        message body. line breaks are converted (br-tag <-> newline character) in accordance
+                                with mime_type.
         :param receiver:        receiver address in the format ``service:address=name``, where ``service`` is mailto,
                                 telegram or whatsapp, ``address`` is an email address, a chat id or phone number and
                                 ``name`` is the name of the receiving person.
         :param subject:         optional subject text. added to the top of the msg_body for messenger services.
-        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to_').
+        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
         :return:                error message on error or empty string if notification got send successfully.
         """
         service, addr_name = receiver.split(':')
         address, name = addr_name.split('=')
-        if subject and service != 'mailto' and not subject.endswith("\n"):
+        if subject and service != 'mailto' and not subject.endswith('\n'):
             subject = f"{subject}\n\n"
 
         if service == 'mailto':
@@ -146,11 +147,11 @@ class Notifications:
     def send_email(self, msg_body: str, address: str, subject: str, name: str, mime_type: str = 'to_html') -> str:
         """ send email to the passed address.
 
-        :param msg_body:        message body text. for new lines use \n in plain and <br> in html mime_type.
+        :param msg_body:        message body text. for new lines use newline char in plain and <br> in html mime_type.
         :param address:         email address of the receiver.
         :param subject:         email subject text.
         :param name:            name of the receiver.
-        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to_').
+        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
         :return:                error message on error or empty string if notification email got send successfully.
         """
         err_prefix = f"error sending {mime_type} email to {name}: "
@@ -191,11 +192,11 @@ class Notifications:
         :param msg_body:        message body text. in 'html' mime_type message texts are only a few tags support by
                                 Telegram (see https://core.telegram.org/bots/api#html-style). on top of that you can
                                 also include the following tags, which will be either converted or removed:
-                                * br: will be converted into a new line character (\n).
+                                * br: will be converted into a new line character.
                                 * div: will be removed.
         :param chat_id:         chat id of the telegram receiver or group.
         :param name:            name of the receiver.
-        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to_').
+        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
         :return:                error message on error or empty string if notification got send successfully.
         """
         err_prefix = f"error sending '{mime_type}' Telegram message to '{name}': "
@@ -225,11 +226,11 @@ class Notifications:
     def send_whatsapp(self, msg_body: str, receiver_id: str, name: str, mime_type: str = 'to_html') -> str:
         """ send message to the passed WhatsApp user/group.
 
-        :param msg_body:        message body text. for new lines use \n in plain and <br> in html mime_type.
+        :param msg_body:        message body text. for new lines use newline char in plain and <br> in html mime_type.
         :param receiver_id:     phone number with country code (and a leading '+') of the WhatsApp receiver or the
                                 id of the WA group (last part of the URL to invite somebody into the group).
         :param name:            name of the receiver.
-        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to_').
+        :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
                                 recognized/converted html tags are b, br, i and pre.
         :return:                error message on error or empty string if notification got send successfully.
 
