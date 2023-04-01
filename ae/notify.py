@@ -19,7 +19,7 @@ from smtplib import SMTP, SMTP_SSL
 from typing import Tuple
 
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 # default service names and ports of the SMTP protocol
@@ -124,13 +124,15 @@ class Notifications:
         :param receiver:        receiver address in the format ``service:address=name``, where ``service`` is mailto,
                                 telegram or whatsapp, ``address`` is an email address, a chat id or phone number and
                                 ``name`` is the name of the receiving person.
-        :param subject:         optional subject text. added to the top of the msg_body for messenger services.
+        :param subject:         optional subject text. added to the top of the msg_body for messenger services,
+                                separated by an empty line. if not specified or specified as empty string or as
+                                a single space character, then it will not be added to the top of the message body.
         :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
         :return:                error message on error or empty string if notification got send successfully.
         """
         service, addr_name = receiver.split(':')
         address, name = addr_name.split('=')
-        if subject and service != 'mailto' and not subject.endswith('\n'):
+        if subject and subject != " " and service != 'mailto' and not subject.endswith('\n'):
             subject = f"{subject}\n\n"
 
         if service == 'mailto':
