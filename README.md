@@ -1,16 +1,16 @@
 <!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project ae.ae V0.3.92 -->
 <!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.tpl_namespace_root V0.3.13 -->
-# notify 0.3.3
+# notify 0.3.4
 
 [![GitLab develop](https://img.shields.io/gitlab/pipeline/ae-group/ae_notify/develop?logo=python)](
     https://gitlab.com/ae-group/ae_notify)
 [![LatestPyPIrelease](
-    https://img.shields.io/gitlab/pipeline/ae-group/ae_notify/release0.3.2?logo=python)](
-    https://gitlab.com/ae-group/ae_notify/-/tree/release0.3.2)
+    https://img.shields.io/gitlab/pipeline/ae-group/ae_notify/release0.3.3?logo=python)](
+    https://gitlab.com/ae-group/ae_notify/-/tree/release0.3.3)
 [![PyPIVersions](https://img.shields.io/pypi/v/ae_notify)](
     https://pypi.org/project/ae-notify/#history)
 
->ae namespace module portion notify: send notifications via email, telegram or whatsapp.
+>ae_notify module 0.3.4.
 
 [![Coverage](https://ae-group.gitlab.io/ae_notify/coverage.svg)](
     https://ae-group.gitlab.io/ae_notify/coverage/index.html)
