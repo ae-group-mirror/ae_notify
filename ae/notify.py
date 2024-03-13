@@ -12,14 +12,14 @@ the notification channels and the receiver(s) can be specified individually for 
 
 """
 import re
-import requests                                     # type: ignore
+import requests
 
 from email.mime.text import MIMEText
 from smtplib import SMTP, SMTP_SSL
 from typing import Tuple
 
 
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
 
 # default service names and ports of the SMTP protocol
@@ -65,7 +65,7 @@ class Notifications:
         :param mail_from:       email sender address.
         :param local_mail_host: FQDN of the local email host in the SMTP HELO/EHLO command.
 
-        :param telegram_token:  token for the Telegram cloud API obtained from the BotFather.
+        :param telegram_token:  token for the Telegram cloud API obtained from the @BotFather bot.
 
         :param whatsapp_token:  token for the WhatsApp cloud API obtained from the developer portal.
         :param whatsapp_sender: sender phone number id for the WhatsApp cloud API obtained from the developer portal.
@@ -200,6 +200,10 @@ class Notifications:
         :param name:            name of the receiver.
         :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
         :return:                error message on error or empty string if notification got send successfully.
+
+        .. hint::
+            see https://www.heise.de/select/ct/2023/8/2231816070982959290 for useful bots and tips.
+            use https://telemetr.io/, https://lyzem.com/ or https://tgstat.com/ to search/find public channels/groups.
         """
         err_prefix = f"error sending '{mime_type}' Telegram message to '{name}': "
 
