@@ -1,1 +1,3 @@
 # runtime dependencies of the ae.notify project
+requests
+types-requests

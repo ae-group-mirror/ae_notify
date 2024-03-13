@@ -12,14 +12,15 @@ the notification channels and the receiver(s) can be specified individually for 
 
 """
 import re
-import requests
 
 from email.mime.text import MIMEText
 from smtplib import SMTP, SMTP_SSL
 from typing import Tuple
 
+import requests
 
-__version__ = '0.3.4'
+
+__version__ = '0.3.5'
 
 
 # default service names and ports of the SMTP protocol
