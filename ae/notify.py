@@ -19,8 +19,10 @@ from typing import Tuple
 
 import requests
 
+from ae.base import URI_SEP_STR         # type: ignore
 
-__version__ = '0.3.5'
+
+__version__ = '0.3.6'
 
 
 # default service names and ports of the SMTP protocol
@@ -73,8 +75,8 @@ class Notifications:
         """
 
         # split smtp server URI into service, host, user, pw and port (all apart from the host address are optional)
-        if '://' in smtp_server_uri:
-            self._mail_service, smtp_server_uri = smtp_server_uri.split("://")
+        if URI_SEP_STR in smtp_server_uri:
+            self._mail_service, smtp_server_uri = smtp_server_uri.split(URI_SEP_STR)
         else:
             self._mail_service = DEF_ENC_SERVICE_NAME
 
@@ -244,7 +246,7 @@ class Notifications:
         using WA Business API (see: https://developers.facebook.com/docs/whatsapp/on-premises/reference/messages and
         https://github.com/Neurotech-HQ/heyoo/blob/58ad576c3dfaf05bad5f342bc8614cf0ba02e6ae/heyoo/__init__.py#L43)
         has the restriction that the receiver has first to send a message to the sender to get a window of 24 hours.
-        and using pyWhatKit's webbrowser-based approach will not work on PythonAnywhere because web.whatsapp.com is not
+        and using pyWhatKit's web browser-based approach will not work on PythonAnywhere because web.whatsapp.com is not
         in their whitelist (https://www.pythonanywhere.com/whitelist/)
         """
         err_prefix = f"error sending '{mime_type}' WhatsApp message to '{name}': "

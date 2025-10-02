@@ -1,6 +1,7 @@
 """ ae.notify unit tests """
 from unittest.mock import MagicMock, Mock, patch
 
+from ae.base import URI_SEP_STR
 from ae.notify import (
     DEF_ENC_PORT, DEF_ENC_SERVICE_NAME, SSL_ENC_PORT, SSL_ENC_SERVICE_NAME, TLS_ENC_PORT, TLS_ENC_SERVICE_NAME,
     Notifications)
@@ -31,7 +32,7 @@ class TestNotificationsClassInit:
         port = 999
         sender = "mail from"
         local_host = "local mail host"
-        uri = service + "://" + usr + ":" + pw + "@" + host + ":" + str(port)
+        uri = service + URI_SEP_STR + usr + ":" + pw + "@" + host + ":" + str(port)
 
         instance = Notifications(uri)
 
@@ -53,7 +54,7 @@ class TestNotificationsClassInit:
         assert instance._mail_from == sender
         assert instance._local_mail_host == local_host
 
-        uri = service + "://" + usr + "@" + host + ":" + str(port)
+        uri = service + URI_SEP_STR + usr + "@" + host + ":" + str(port)
 
         instance = Notifications(uri)
 
