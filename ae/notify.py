@@ -1,5 +1,5 @@
 """
-send notifications via email, telegram or whatsapp
+send notifications via email, Telegram or WhatsApp
 ==================================================
 
 this pure python module depends mainly on the Standard Python Libraries :mod:`email` and :mod:`smtplib` and the external
@@ -22,7 +22,7 @@ import requests
 from ae.base import URI_SEP_STR         # type: ignore
 
 
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 
 
 # default service names and ports of the SMTP protocol
@@ -35,7 +35,7 @@ TLS_ENC_SERVICE_NAME = 'smtpTLS'        #: service name in :paramref:`Notificati
 
 #: message length maximum restrictions
 TELEGRAM_MESSAGE_MAX_LEN = 4096         #: maximum length of Telegram notification message body
-WHATSAPP_MESSAGE_MAX_LEN = 65536        #: maximum length of Whatsapp notification message body
+WHATSAPP_MESSAGE_MAX_LEN = 65536        #: maximum length of WhatsApp notification message body
 
 
 def _body_mime_type_conversion(msg_body: str, mime_type: str) -> Tuple[str, str]:
@@ -54,8 +54,9 @@ def _body_mime_type_conversion(msg_body: str, mime_type: str) -> Tuple[str, str]
     return msg_body, mime_type
 
 
-class Notifications:
+class Notifications:    # pylint: disable=too-many-instance-attributes
     """ a single instance of this class can be used to handle all notifications of an app/service. """
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def __init__(self,
                  smtp_server_uri: str = "", mail_from: str = "", local_mail_host: str = '',
                  telegram_token: str = "",
@@ -73,7 +74,6 @@ class Notifications:
         :param whatsapp_token:  token for the WhatsApp cloud API obtained from the developer portal.
         :param whatsapp_sender: sender phone number id for the WhatsApp cloud API obtained from the developer portal.
         """
-
         # split smtp server URI into service, host, user, pw and port (all apart from the host address are optional)
         if URI_SEP_STR in smtp_server_uri:
             self._mail_service, smtp_server_uri = smtp_server_uri.split(URI_SEP_STR)
@@ -125,7 +125,7 @@ class Notifications:
         :param msg_body:        message body. line breaks are converted (br-tag <-> newline character) in accordance
                                 with mime_type.
         :param receiver:        receiver address in the format ``service:address=name``, where ``service`` is mailto,
-                                telegram or whatsapp, ``address`` is an email address, a chat id or phone number and
+                                'telegram' or 'whatsapp', ``address`` is an email address, a chat id or phone number and
                                 ``name`` is the name of the receiving person.
         :param subject:         optional subject text. added to the top of the msg_body for messenger services,
                                 separated by an empty line. if not specified or specified as empty string or as
@@ -149,10 +149,11 @@ class Notifications:
 
         return err_msg
 
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def send_email(self, msg_body: str, address: str, subject: str, name: str, mime_type: str = 'to_html') -> str:
         """ send email to the passed address.
 
-        :param msg_body:        message body text. for new lines use newline char in plain and <br> in html mime_type.
+        :param msg_body:        message body text. for new lines use newline char in plain and <br> in HTML mime_type.
         :param address:         email address of the receiver.
         :param subject:         email subject text.
         :param name:            name of the receiver.
@@ -186,7 +187,7 @@ class Notifications:
                 unreached_recipients = session.send_message(message, self._mail_from, address)
                 if unreached_recipients:
                     err_msg = f"{err_prefix}unreached email recipient '{unreached_recipients}'"
-        except Exception as mex:
+        except Exception as mex:    # pylint: disable=broad-exception-caught
             err_msg = f"{err_prefix}email send exception '{mex}'"
 
         return err_msg
@@ -224,10 +225,12 @@ class Notifications:
 
         err_msg = ""
         try:
-            response = requests.post(f"https://api.telegram.org/bot{self._telegram_token}/sendMessage", json=post_data)
+            response = requests.post(f"https://api.telegram.org/bot{self._telegram_token}/sendMessage",
+                                     json=post_data,
+                                     timeout=(6.3, 96.3))    # connect-/read-timeouts
             if response.status_code != 200:
                 err_msg = f"{err_prefix}{response.json()}"
-        except Exception as tex:
+        except Exception as tex:    # pylint: disable=broad-exception-caught
             err_msg = f"{err_prefix}{tex}"
 
         return err_msg
@@ -235,12 +238,12 @@ class Notifications:
     def send_whatsapp(self, msg_body: str, receiver_id: str, name: str, mime_type: str = 'to_html') -> str:
         """ send message to the passed WhatsApp user/group.
 
-        :param msg_body:        message body text. for new lines use newline char in plain and <br> in html mime_type.
+        :param msg_body:        message body text. for new lines use newline char in plain and <br> in HTML mime_type.
         :param receiver_id:     phone number with country code (and a leading '+') of the WhatsApp receiver or the
                                 id of the WA group (last part of the URL to invite somebody into the group).
         :param name:            name of the receiver.
         :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
-                                recognized/converted html tags are b, br, i and pre.
+                                recognized/converted HTML tags are b, br, i and pre.
         :return:                error message on error or empty string if notification got send successfully.
 
         using WA Business API (see: https://developers.facebook.com/docs/whatsapp/on-premises/reference/messages and
@@ -275,10 +278,11 @@ class Notifications:
                     'recipient_type': 'group' if is_group else 'individual',
                     'to': receiver_id if is_group else receiver_id[1:].translate({ord(char): None for char in " /-"}),
                     'type': 'text',
-                    'text': {'preview_url': True, 'body': msg_body[:WHATSAPP_MESSAGE_MAX_LEN]}})
+                    'text': {'preview_url': True, 'body': msg_body[:WHATSAPP_MESSAGE_MAX_LEN]}},
+                timeout=(6.3, 96.3))    # connect-/read-timeouts
             if response.status_code != 200:
                 err_msg = f"{err_prefix}{response.json()}"
-        except Exception as wex:
+        except Exception as wex:    # pylint: disable=broad-exception-caught
             err_msg = f"{err_prefix}{wex}"
 
         return err_msg
