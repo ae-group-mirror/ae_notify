@@ -15,14 +15,13 @@ import re
 
 from email.mime.text import MIMEText
 from smtplib import SMTP, SMTP_SSL
-from typing import Tuple
 
 import requests
 
 from ae.base import URI_SEP_STR         # type: ignore
 
 
-__version__ = '0.3.7'
+__version__ = '0.3.8'
 
 
 # default service names and ports of the SMTP protocol
@@ -38,7 +37,7 @@ TELEGRAM_MESSAGE_MAX_LEN = 4096         #: maximum length of Telegram notificati
 WHATSAPP_MESSAGE_MAX_LEN = 65536        #: maximum length of WhatsApp notification message body
 
 
-def _body_mime_type_conversion(msg_body: str, mime_type: str) -> Tuple[str, str]:
+def _body_mime_type_conversion(msg_body: str, mime_type: str) -> tuple[str, str]:
     """ convert content of notification message body.
 
     :param msg_body:            message body string.
