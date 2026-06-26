@@ -1,4 +1,4 @@
-# THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.project_tpls v0.3.77
+# THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.project_tpls v0.3.79
 """ setup of ae namespace module portion notify: send notifications via email, Telegram or WhatsApp. """
 import sys
 # noinspection PyUnresolvedReferences
@@ -77,7 +77,7 @@ setup_kwargs = {
     },
     'python_requires': '>=3.12',
     'url': 'https://gitlab.com/ae-group/ae_notify',
-    'version': '0.3.7',
+    'version': '0.3.8',
     'zip_safe': True,
 }
 
