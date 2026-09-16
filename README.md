@@ -1,12 +1,12 @@
-<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project ae.ae v0.3.104 -->
-<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.namespace_root_tpls v0.3.31 -->
-# notify 0.3.8
+<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project ae.ae v0.3.110 -->
+<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.namespace_root_tpls v0.3.33 -->
+# notify 0.3.9
 
 [![GitLab develop](https://img.shields.io/gitlab/pipeline/ae-group/ae_notify/develop?logo=python)](
     https://gitlab.com/ae-group/ae_notify)
 [![LatestPyPIrelease](
-    https://img.shields.io/gitlab/pipeline/ae-group/ae_notify/release0.3.8?logo=python)](
-    https://gitlab.com/ae-group/ae_notify/-/tree/release0.3.8)
+    https://img.shields.io/gitlab/pipeline/ae-group/ae_notify/release0.3.9?logo=python)](
+    https://gitlab.com/ae-group/ae_notify/-/tree/release0.3.9)
 [![PyPIVersions](https://img.shields.io/pypi/v/ae_notify)](
     https://pypi.org/project/ae-notify/#history)
 

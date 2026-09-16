@@ -18,10 +18,10 @@ from smtplib import SMTP, SMTP_SSL
 
 import requests
 
-from ae.base import URI_SEP_STR         # type: ignore
+from ae.base import URI_SVC_SEP         # type: ignore
 
 
-__version__ = '0.3.8'
+__version__ = '0.3.9'
 
 
 # default service names and ports of the SMTP protocol
@@ -74,8 +74,8 @@ class Notifications:    # pylint: disable=too-many-instance-attributes
         :param whatsapp_sender: sender phone number id for the WhatsApp cloud API obtained from the developer portal.
         """
         # split smtp server URI into service, host, user, pw and port (all apart from the host address are optional)
-        if URI_SEP_STR in smtp_server_uri:
-            self._mail_service, smtp_server_uri = smtp_server_uri.split(URI_SEP_STR)
+        if URI_SVC_SEP in smtp_server_uri:
+            self._mail_service, smtp_server_uri = smtp_server_uri.split(URI_SVC_SEP)
         else:
             self._mail_service = DEF_ENC_SERVICE_NAME
 
@@ -197,8 +197,10 @@ class Notifications:    # pylint: disable=too-many-instance-attributes
         :param msg_body:        message body text. in 'html' mime_type message texts are only a few tags support by
                                 Telegram (see https://core.telegram.org/bots/api#html-style). on top of that you can
                                 also include the following tags, which will be either converted or removed:
+
                                 * br: will be converted into a new line character.
                                 * div: will be removed.
+
         :param chat_id:         chat id of the telegram receiver or group.
         :param name:            name of the receiver.
         :param mime_type:       mime type ('html' or 'plain'), and optional conversion to it (if starts with 'to').
@@ -224,7 +226,7 @@ class Notifications:    # pylint: disable=too-many-instance-attributes
 
         err_msg = ""
         try:
-            response = requests.post(f"https://api.telegram.org/bot{self._telegram_token}/sendMessage",
+            response = requests.post(f"https{URI_SVC_SEP}api.telegram.org/bot{self._telegram_token}/sendMessage",
                                      json=post_data,
                                      timeout=(6.3, 96.3))    # connect-/read-timeouts
             if response.status_code != 200:
@@ -268,7 +270,7 @@ class Notifications:    # pylint: disable=too-many-instance-attributes
         err_msg = ""
         try:
             response = requests.post(
-                f"https://graph.facebook.com/v15.0/{self._whatsapp_sender_id}/messages",
+                f"https{URI_SVC_SEP}graph.facebook.com/v15.0/{self._whatsapp_sender_id}/messages",
                 headers={
                     'Content-Type': 'application/json',
                     'Authorization': f"Bearer {self._whatsapp_token}"},
