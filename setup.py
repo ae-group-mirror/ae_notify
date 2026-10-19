@@ -1,5 +1,5 @@
-# THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.project_tpls v0.3.103
-""" setup of ae namespace module portion notify: send notifications via email, Telegram or WhatsApp. """
+# THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.project_tpls v0.3.106
+""" setup of ae namespace module portion notify: send notifications via E-Mail, Telegram and/or WhatsApp. """
 import pathlib
 import sys
 from typing import Any
@@ -21,7 +21,7 @@ setup_kwargs: dict[str, Any] = {
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Typing :: Typed',
     ],
-    'description': 'ae namespace module portion notify: send notifications via email, Telegram or WhatsApp',
+    'description': 'ae namespace module portion notify: send notifications via E-Mail, Telegram and/or WhatsApp',
     'extras_require': {
         'dev': [
             'aedev_project_tpls',
@@ -48,7 +48,6 @@ setup_kwargs: dict[str, Any] = {
         ],
     },
     'install_requires': [
-        'ae_base',
         'requests',
         'types-requests',
     ],
@@ -76,7 +75,7 @@ setup_kwargs: dict[str, Any] = {
     },
     'python_requires': '>=3.12',
     'url': 'https://gitlab.com/ae-group/ae_notify',
-    'version': '0.3.9',
+    'version': '0.3.10',
     'zip_safe': True,
 }
 
