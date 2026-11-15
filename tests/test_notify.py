@@ -1,21 +1,29 @@
 """ ae.notify unit tests """
 from unittest.mock import MagicMock, Mock, patch
 
-from ae.base import URI_SVC_SEP
-from ae.notify import (
-    DEF_ENC_PORT, DEF_ENC_SERVICE_NAME, SSL_ENC_PORT, SSL_ENC_SERVICE_NAME, TLS_ENC_PORT, TLS_ENC_SERVICE_NAME,
-    Notifications)
+
+from ae.notify import Notifications
+
+
+tst_service = "service"
+tst_usr = "user"
+tst_pw = "password"
+tst_host = "mail host"
+tst_port = 999
+tst_sender = "mail from"
+tst_local_host = "local mail host"
+tst_uri = tst_service + '://' + tst_usr + ":" + tst_pw + "@" + tst_host + ":" + str(tst_port)
 
 
 class TestNotificationsClassInit:
     def test_init_all_defaults(self):
         instance = Notifications()
 
-        assert instance._mail_service == DEF_ENC_SERVICE_NAME
+        assert instance._mail_service == 'smtp'
         assert instance._user_name == ""
         assert instance._user_password == ""
         assert instance._mail_host == ""
-        assert instance._mail_port == DEF_ENC_PORT
+        assert instance._mail_port == 2_5
         assert instance._mail_from == ""
         assert instance._local_mail_host == ""
 
@@ -24,47 +32,49 @@ class TestNotificationsClassInit:
         assert instance._whatsapp_token == ""
         assert instance._whatsapp_sender_id == ""
 
-    def test_init_email(self):
-        service = "service"
-        usr = "user"
-        pw = "password"
-        host = "mail host"
-        port = 999
-        sender = "mail from"
-        local_host = "local mail host"
-        uri = service + URI_SVC_SEP + usr + ":" + pw + "@" + host + ":" + str(port)
+    def test_init_email_uri_complete(self):
+        instance = Notifications(smtp_server_uri=tst_uri)
 
-        instance = Notifications(uri)
-
-        assert instance._mail_service == service
-        assert instance._user_name == usr
-        assert instance._user_password == pw
-        assert instance._mail_host == host
-        assert instance._mail_port == port
+        assert instance._mail_service == tst_service
+        assert instance._user_name == tst_usr
+        assert instance._user_password == tst_pw
+        assert instance._mail_host == tst_host
+        assert instance._mail_port == tst_port
         assert instance._mail_from == ""
-        assert instance._local_mail_host == host
+        assert instance._local_mail_host == tst_host
 
-        instance = Notifications(uri, mail_from=sender, local_mail_host=local_host)
+    def test_init_email_uri_fallback_and_error_correction(self):
+        instance = Notifications(smtp_server_uri=tst_usr + ":" + tst_pw + "@" + tst_host + ":" + 'err_port')
 
-        assert instance._mail_service == service
-        assert instance._user_name == usr
-        assert instance._user_password == pw
-        assert instance._mail_host == host
-        assert instance._mail_port == port
-        assert instance._mail_from == sender
-        assert instance._local_mail_host == local_host
+        assert instance._mail_service == 'smtp'
+        assert instance._user_name == tst_usr
+        assert instance._user_password == tst_pw
+        assert instance._mail_host == tst_host
+        assert instance._mail_port == 2_5
+        assert instance._mail_from == ""
+        assert instance._local_mail_host == tst_host
 
-        uri = service + URI_SVC_SEP + usr + "@" + host + ":" + str(port)
+    def test_init_email_uri_local(self):
+        instance = Notifications(smtp_server_uri=tst_uri, mail_from=tst_sender, local_mail_host=tst_local_host)
 
-        instance = Notifications(uri)
+        assert instance._mail_service == tst_service
+        assert instance._user_name == tst_usr
+        assert instance._user_password == tst_pw
+        assert instance._mail_host == tst_host
+        assert instance._mail_port == tst_port
+        assert instance._mail_from == tst_sender
+        assert instance._local_mail_host == tst_local_host
 
-        assert instance._mail_service == service
-        assert instance._user_name == usr
+    def test_init_email_uri_smtp(self):
+        instance = Notifications(smtp_server_uri=tst_service + '://' + tst_usr + "@" + tst_host + ":" + str(tst_port))
+
+        assert instance._mail_service == tst_service
+        assert instance._user_name == tst_usr
         assert instance._user_password == ""
-        assert instance._mail_host == host
-        assert instance._mail_port == port
+        assert instance._mail_host == tst_host
+        assert instance._mail_port == tst_port
         assert instance._mail_from == ""
-        assert instance._local_mail_host == host
+        assert instance._local_mail_host == tst_host
 
     def test_init_telegram(self):
         token = "token string"
@@ -156,11 +166,11 @@ class TestNotificationEmail:
         name = "name of receiver"
         mocked_session = mocked_smtp.return_value.__enter__
         mocked_session.return_value = MagicMock()
-        instance = Notifications(smtp_server_uri="smtp.host:" + str(SSL_ENC_PORT))
+        instance = Notifications(smtp_server_uri="smtp.host:" + str(4_6_5))
 
         err_msg = instance.send_email(body, addr, subject, name)
 
-        assert instance._mail_service == SSL_ENC_SERVICE_NAME
+        assert instance._mail_service == 'smtps'
         assert name in err_msg
         assert ('Subject', subject) in mocked_session.return_value.send_message.call_args.args[0]._headers
         assert ('From', instance._mail_from) in mocked_session.return_value.send_message.call_args.args[0]._headers
@@ -180,11 +190,11 @@ class TestNotificationEmail:
         pw = "password"
         mocked_session = mocked_smtp.return_value.__enter__
         mocked_session.return_value = MagicMock()
-        instance = Notifications(smtp_server_uri=usr + ":" + pw + "@" + "smtp.host" + ":" + str(TLS_ENC_PORT))
+        instance = Notifications(smtp_server_uri=usr + ":" + pw + "@" + "smtp.host" + ":" + str(5_8_7))
 
         err_msg = instance.send_email(body, addr, subject, name)
 
-        assert instance._mail_service == TLS_ENC_SERVICE_NAME
+        assert instance._mail_service == 'smtpTLS'
         assert name in err_msg
         assert ('Subject', subject) in mocked_session.return_value.send_message.call_args.args[0]._headers
         assert ('From', instance._mail_from) in mocked_session.return_value.send_message.call_args.args[0]._headers
@@ -260,11 +270,11 @@ class TestNotificationTelegram:
         mocked_post.return_value = Mock(status_code=200)
         instance = Notifications(telegram_token="dummy_telegram_token")
 
-        assert instance.send_telegram(msg_body, chat_id, "name", mime_type="to_" + "html") == ""
+        assert instance.send_telegram(msg_body, chat_id, "name", msg_type='to_' + 'html') == ""
 
         assert mocked_post.call_args.kwargs['json']['text'] == msg_body     # Telegram don't support <br>
         assert mocked_post.call_args.kwargs['json']['chat_id'] == chat_id
-        assert mocked_post.call_args.kwargs['json']['parse_mode'] == "HTML"
+        assert mocked_post.call_args.kwargs['json']['parse_mode'] == 'HTML'
 
     @patch('requests.post')
     def test_send_telegram_to_plain_body(self, mocked_post):
@@ -273,7 +283,7 @@ class TestNotificationTelegram:
         mocked_post.return_value = Mock(status_code=200)
         instance = Notifications(telegram_token="dummy_telegram_token")
 
-        assert instance.send_telegram(msg_body, chat_id, "name", mime_type='to_plain') == ""
+        assert instance.send_telegram(msg_body, chat_id, "name", msg_type='to_' + 'plain') == ""
 
         assert mocked_post.call_args.kwargs['json']['text'] == msg_body.replace("<br>", "\n")
         assert mocked_post.call_args.kwargs['json']['chat_id'] == chat_id
@@ -344,7 +354,7 @@ class TestNotificationWhatsapp:
         mocked_post.return_value = Mock(status_code=200)
         instance = Notifications(whatsapp_token="dummy_whatsapp_token", whatsapp_sender="sender id")
 
-        assert instance.send_whatsapp(msg_body, chat_id, "name", mime_type="to_" + "html") == ""
+        assert instance.send_whatsapp(msg_body, chat_id, "name", msg_type='to_' + 'html') == ""
 
         assert mocked_post.call_args.kwargs['json']['text']['body'] == msg_body     # Whatsapp don't support <br>
         assert mocked_post.call_args.kwargs['json']['to'] == chat_id
@@ -357,7 +367,7 @@ class TestNotificationWhatsapp:
         mocked_post.return_value = Mock(status_code=200)
         instance = Notifications(whatsapp_token="dummy_whatsapp_token", whatsapp_sender="sender id")
 
-        assert instance.send_whatsapp(msg_body, chat_id, "name", mime_type='to_plain') == ""
+        assert instance.send_whatsapp(msg_body, chat_id, "name", msg_type='to_' + 'plain') == ""
 
         assert mocked_post.call_args.kwargs['json']['text']['body'] == msg_body.replace("<br>", "\n")
         assert mocked_post.call_args.kwargs['json']['to'] == chat_id
